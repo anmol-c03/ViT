@@ -3,21 +3,11 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torchvision import transforms
 from PIL import Image
-from vit import ViT
+from src.vit import ViT
 
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-# parser = argparse.ArgumentParser(description="Inference using ViT model with an image URL")
-# parser.add_argument("image_url", help="URL of the image to perform inference on")
-# args = parser.parse_args()
-
-# import sys;sys.exit(0)
-import requests
-# image_url='https://storage.googleapis.com/download.tensorflow.org/example_images/592px-Red_sunflower.jpg'
-# response = requests.get(image_url)
-
-# img = Image.open(io.BytesIO(response.content)).convert('RGB')
 from pathlib import Path
 
 img_path='/Users/anmolchalise/Downloads/tabitha-turner-Lc9czM0IGfU-unsplash.jpg'
@@ -33,14 +23,12 @@ preprocess = transforms.Compose([
 
 img = preprocess(img).unsqueeze(0).to(device)
 print(img.shape,'\n')
-# vit=ViT(conf)
-# print(vit.state_dict().keys())
-vit = ViT.from_pretrained("google/vit-base-patch16-224").to(device)
+model = ViT.from_pretrained("google/vit-base-patch16-224").to(device)
 
 with torch.no_grad():
-    vit.to(device)
-    vit.eval()
-    logits = vit(img)
+    model.to(device)
+    model.eval()
+    logits = model(img)
 
 prob=F.softmax(logits, dim=-1)
 index = torch.argmax(prob)
