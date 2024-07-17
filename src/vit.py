@@ -1,7 +1,9 @@
 import torch
 import torch.nn as nn
-from configuration import ViT_Config
-from transformer import TransformerBlock
+from .configuration import ViT_Config
+from .transformer import TransformerBlock
+from transformers import ViTForImageClassification
+
 
 class ViT(nn.Module):
     def __init__(self, config):
@@ -22,7 +24,7 @@ class ViT(nn.Module):
 
         #For patch embedding fn:
         self.projection = nn.Conv2d(
-            config.num_channels, 
+            self.num_channels, 
             config.embed_dim, 
             kernel_size=config.patch_size, 
             stride=config.patch_size
@@ -30,10 +32,8 @@ class ViT(nn.Module):
         self.dropout = nn.Dropout(0.1, inplace=True) #just after embeddings - for training
 
         self.transformer = nn.Sequential(*[TransformerBlock(
-                        config.num_patches, 
-                        config.embed_dim, 
-                        config.ff_dim, 
-                        config.num_heads,
+                        self.num_patches, 
+                        config,
         ) for _ in range(config.layers)]
         )
 
@@ -65,8 +65,7 @@ class ViT(nn.Module):
         config_args['patch_size'] = 16
         # import code;code.interact(local=locals())
 
-        #vanilla vit has not classifier head instead has pooler;
-        from transformers import ViTForImageClassification
+        #vanilla vit dont have classifier head instead has pooler;
         model_hf = ViTForImageClassification.from_pretrained("google/vit-base-patch16-224") #finetuned on imagenet
         sd_hf = model_hf.state_dict()
         #The original vit was trained on 21k imagenet, whose head is not released, only body;
