@@ -8,3 +8,4 @@ class ViT_Config:
     ff_dim: int=768*4 
     num_heads: int=12
     layers: int=12
+
