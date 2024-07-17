@@ -8,13 +8,8 @@ class ViT(nn.Module):
         super(ViT, self).__init__()
         assert config.image_size % config.patch_size == 0
 
-        self.image_size = config.image_size
-        self.patch_size = config.patch_size
         self.embed_dim = config.embed_dim
-        self.ff_dim = config.ff_dim
-        self.num_heads = config.num_heads
-        self.layers = config.layers
-    
+
         #derive:
         self.num_channels = 3
         self.num_patches = (config.image_size//config.patch_size)**2
@@ -27,25 +22,24 @@ class ViT(nn.Module):
 
         #For patch embedding fn:
         self.projection = nn.Conv2d(
-            self.num_channels, 
-            self.embed_dim, 
-            kernel_size=self.patch_size, 
-            stride=self.patch_size
+            config.num_channels, 
+            config.embed_dim, 
+            kernel_size=config.patch_size, 
+            stride=config.patch_size
         )
-
         self.dropout = nn.Dropout(0.1, inplace=True) #just after embeddings - for training
 
         self.transformer = nn.Sequential(*[TransformerBlock(
-            self.num_patches, 
-            self.embed_dim, 
-            self.ff_dim, 
-            self.num_heads,
-            ) for _ in range(self.layers)]
+                        config.num_patches, 
+                        config.embed_dim, 
+                        config.ff_dim, 
+                        config.num_heads,
+        ) for _ in range(config.layers)]
         )
 
         self.ln_f = nn.LayerNorm(config.embed_dim) #layer norm after every block passes on
 
-        self.head = nn.Linear(self.embed_dim, 1000) #classification head
+        self.head = nn.Linear(config.embed_dim, 1000) #classification head
 
 
     def patch_embeddings(self, x):
