@@ -1,19 +1,19 @@
 import torch
 import torch.nn as nn
 from torch.nn import functional as F
-from mlp import MLP
-from configuration import conf
+from .mlp import MLP
+
 
 class TransformerBlock(nn.Module):
-    def __init__(self, max_length, embed_dim, ff_dim, num_heads, dropout=0.1):
+    def __init__(self, max_length, config, dropout=0.1):
 
         super(TransformerBlock, self).__init__()
-        assert embed_dim % num_heads == 0, "embed_dim must be divisble by num_heads"
+        assert config.embed_dim % config.num_heads == 0, "embed_dim must be divisble by num_heads"
 
         self.max_length = max_length
-        self.embed_dim = embed_dim
-        self.ff_dim = ff_dim
-        self.num_heads = num_heads
+        self.embed_dim = config.embed_dim
+        self.ff_dim = config.ff_dim
+        self.num_heads = config.num_heads
         self.dp = dropout
 
         #derv:
@@ -26,7 +26,7 @@ class TransformerBlock(nn.Module):
         self.c_proj = nn.Linear(self.embed_dim, self.embed_dim)
 
         #feedforward blocks
-        self.mlpf = MLP(conf)
+        self.mlpf = MLP(config)
         
         #after attn and ff blocks
         self.dropout = nn.Dropout(self.dp, inplace=True)
